@@ -4,10 +4,12 @@ const core_1 = require("@nestjs/core");
 const app_module_1 = require("./app.module");
 const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
+const cookieParser = require("cookie-parser");
 async function bootstrap() {
     try {
         const PORT = process.env.PORT ?? 3003;
         const app = await core_1.NestFactory.create(app_module_1.AppModule);
+        app.use(cookieParser());
         const config = new swagger_1.DocumentBuilder()
             .setTitle("Cats example")
             .setDescription("The cats API description")

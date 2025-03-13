@@ -19,8 +19,4 @@ export class CreateAdminDto {
 
     confirm_password:string
 
-    @ApiProperty({ example: 'hashed_refresh_token', description: 'Yangi refresh token' })
-    @IsOptional()
-    @IsString()
-    hashed_refresh_token?: string |undefined
 }

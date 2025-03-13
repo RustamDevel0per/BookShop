@@ -28,6 +28,12 @@ let CustomerService = class CustomerService {
         });
         return newCustomer;
     }
+    async updateRefreshToken(id, hashed_refresh_token) {
+        const updateUser = await this.customerModel.update({ hashed_refresh_token: hashed_refresh_token }, {
+            where: { id },
+        });
+        return updateUser;
+    }
     findAll() {
         return this.customerModel.findAll({ include: { all: true } });
     }

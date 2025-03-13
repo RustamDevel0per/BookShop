@@ -9,12 +9,26 @@ export class AdminService {
   constructor(@InjectModel(Admin) private adminModel: typeof Admin) {}
 
 async create(createAdminDto: CreateAdminDto) {
+  const {password,confirm_password, ...data} = createAdminDto
     const newAdmin = await this.adminModel.create({
-      ...createAdminDto,
-      hashed_password:createAdminDto.password
+      ...data,
+      hashed_password: createAdminDto.password,
     });
     return newAdmin
   }
+
+
+  async updateRefreshToken(id: number, hashed_refresh_token: string | null) {
+    const updateUser = await this.adminModel.update(
+      { hashed_refresh_token:hashed_refresh_token! },
+      {
+        where: { id },
+      }
+    );
+    return updateUser;
+  }
+
+
 
   findAdminByEmail(email: string): Promise<Admin | null> {
     return this.adminModel.findOne({

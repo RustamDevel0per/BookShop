@@ -17,7 +17,6 @@ class CreateAdminDto {
     email;
     password;
     confirm_password;
-    hashed_refresh_token;
 }
 exports.CreateAdminDto = CreateAdminDto;
 __decorate([
@@ -36,10 +35,4 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], CreateAdminDto.prototype, "password", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ example: 'hashed_refresh_token', description: 'Yangi refresh token' }),
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsString)(),
-    __metadata("design:type", Object)
-], CreateAdminDto.prototype, "hashed_refresh_token", void 0);
 //# sourceMappingURL=create-admin.dto.js.map

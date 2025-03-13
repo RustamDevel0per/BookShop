@@ -5,6 +5,7 @@ export declare class AdminService {
     private adminModel;
     constructor(adminModel: typeof Admin);
     create(createAdminDto: CreateAdminDto): Promise<Admin>;
+    updateRefreshToken(id: number, hashed_refresh_token: string | null): Promise<[affectedCount: number]>;
     findAdminByEmail(email: string): Promise<Admin | null>;
     findAll(): Promise<Admin[]>;
     findOne(id: number): Promise<Admin | null>;

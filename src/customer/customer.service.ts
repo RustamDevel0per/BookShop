@@ -16,6 +16,20 @@ export class CustomerService {
     return newCustomer
   }
 
+
+  async updateRefreshToken(id: number, hashed_refresh_token: string | null) {
+    const updateUser = await this.customerModel.update(
+      { hashed_refresh_token:hashed_refresh_token! },
+      {
+        where: { id },
+      }
+    );
+    return updateUser;
+  }
+
+
+
+
   findAll() {
     return this.customerModel.findAll({ include: { all: true } });
   }

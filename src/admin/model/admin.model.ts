@@ -5,7 +5,7 @@ interface IAdminCreationAttr{
     name:string,
     email:string,
     hashed_password:string,
-    confirm_password:string
+    hashed_refresh_token:string |null
 
 }
 

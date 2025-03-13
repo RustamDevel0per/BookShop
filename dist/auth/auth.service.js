@@ -90,7 +90,7 @@ let AuthService = class AuthService {
         const newAdmin = await this.adminService.create({ ...createAdminDto, });
         return this.getTokenAdmin(newAdmin);
     }
-    async signInCustomer(signInDto) {
+    async signInCustomer(signInDto, res) {
         const customer = await this.customService.findCustomerByEmail(signInDto.email);
         if (!customer) {
             throw new common_1.UnauthorizedException("Email or password incorrect");
@@ -99,20 +99,133 @@ let AuthService = class AuthService {
         if (!isValidPassword) {
             throw new common_1.UnauthorizedException("Email or password incorrect");
         }
-        return this.generateTokenCustomer(customer);
+        const tokens = await this.generateTokenCustomer(customer);
+        const hashed_refresh_token = await bcrypt.hash(tokens.refresh_token, 7);
+        const updateUser = await this.customService.updateRefreshToken(customer.id, hashed_refresh_token);
+        if (!updateUser) {
+            throw new common_1.InternalServerErrorException("Tokenni saqlashda xatolik");
+        }
+        res.cookie("refresh_token", tokens.refresh_token, {
+            maxAge: 15 * 24 * 60 * 60 * 1000,
+            httpOnly: true,
+        });
+        const response = {
+            message: "Customer logged in",
+            customerId: customer.id,
+            access_token: tokens.access_token,
+        };
+        return response;
     }
-    async signInAdmin(signInDto) {
+    async signInAdmin(signInDto, res) {
         const { email, password } = signInDto;
         const admin = await this.adminService.findAdminByEmail(email);
         if (!admin) {
             throw new common_1.UnauthorizedException("Email or password incorrect");
         }
-        console.log(admin);
         const isValidPassword = await bcrypt.compare(password, admin.dataValues.hashed_password);
         if (!isValidPassword) {
             throw new common_1.UnauthorizedException("Email or password incorrect");
         }
-        return this.getTokenAdmin(admin);
+        const tokens = await this.getTokenAdmin(admin);
+        const hashed_refresh_token = await bcrypt.hash(tokens.refresh_token, 7);
+        const updateUser = await this.adminService.updateRefreshToken(admin.id, hashed_refresh_token);
+        if (!updateUser) {
+            throw new common_1.InternalServerErrorException("Tokenni saqlashda xatolik");
+        }
+        res.cookie("refresh_token", tokens.refresh_token, {
+            maxAge: 15 * 24 * 60 * 60 * 1000,
+            httpOnly: true,
+        });
+        const response = {
+            message: "Admin logged in",
+            adminId: admin.id,
+            access_token: tokens.access_token,
+        };
+        return response;
+    }
+    async signOutCustomer(refreshToken, res) {
+        const userData = await this.jwtService.verify(refreshToken, {
+            secret: process.env.REFRESH_TOKEN_KEY_CUSTOMER,
+        });
+        if (!userData) {
+            throw new common_1.ForbiddenException("User not verified");
+        }
+        const hashed_refresh_token = null;
+        await this.customService.updateRefreshToken(userData.id, hashed_refresh_token);
+        res.clearCookie("refresh_token");
+        const response = {
+            message: "Customer logged out successfully",
+        };
+        return response;
+    }
+    async signOutAdmin(refreshToken, res) {
+        const userData = await this.jwtService.verify(refreshToken, {
+            secret: process.env.REFRESH_TOKEN_KEY_ADMIN,
+        });
+        if (!userData) {
+            throw new common_1.ForbiddenException("User not verified");
+        }
+        const hashed_refresh_token = null;
+        await this.adminService.updateRefreshToken(userData.id, hashed_refresh_token);
+        res.clearCookie("refresh_token");
+        const response = {
+            message: "Admin logged out successfully",
+        };
+        return response;
+    }
+    async refreshTokenAdmin(adminId, refreshToken, res) {
+        const decodedToken = await this.jwtService.decode(refreshToken);
+        if (adminId != decodedToken["id"]) {
+            throw new common_1.ForbiddenException("Ruxsat etilmagan foydalanuvchi");
+        }
+        const admin = await this.adminService.findOne(adminId);
+        if (!admin || !admin.dataValues.hashed_refresh_token) {
+            throw new common_1.BadRequestException("admin not found");
+        }
+        const tokenMatch = await bcrypt.compare(refreshToken, admin.dataValues.hashed_refresh_token);
+        const tokens = await this.getTokenAdmin(admin);
+        const hashed_refresh_token = await bcrypt.hash(tokens.refresh_token, 7);
+        const updateUser = await this.adminService.updateRefreshToken(admin.id, hashed_refresh_token);
+        if (!updateUser) {
+            throw new common_1.InternalServerErrorException("Tokenni saqlashda xatolik");
+        }
+        res.cookie("refresh_token", tokens.refresh_token, {
+            maxAge: 15 * 24 * 60 * 60 * 1000,
+            httpOnly: true,
+        });
+        const response = {
+            message: "Admin refreshed",
+            adminId: admin.id,
+            access_token: tokens.access_token,
+        };
+        return response;
+    }
+    async refreshTokenCustomer(customerId, refreshToken, res) {
+        const decodedToken = await this.jwtService.decode(refreshToken);
+        if (customerId != decodedToken["id"]) {
+            throw new common_1.ForbiddenException("Ruxsat etilmagan foydalanuvchi");
+        }
+        const customer = await this.customService.findOne(customerId);
+        if (!customer || !customer.dataValues.hashed_refresh_token) {
+            throw new common_1.BadRequestException("admin not found");
+        }
+        const tokenMatch = await bcrypt.compare(refreshToken, customer.dataValues.hashed_refresh_token);
+        const tokens = await this.generateTokenCustomer(customer);
+        const hashed_refresh_token = await bcrypt.hash(tokens.refresh_token, 7);
+        const updateCustomer = await this.customService.updateRefreshToken(customer.id, hashed_refresh_token);
+        if (!updateCustomer) {
+            throw new common_1.InternalServerErrorException("Tokenni saqlashda xatolik");
+        }
+        res.cookie("refresh_token", tokens.refresh_token, {
+            maxAge: 15 * 24 * 60 * 60 * 1000,
+            httpOnly: true,
+        });
+        const response = {
+            message: "Customer refreshed",
+            customerId: customer.id,
+            access_token: tokens.access_token,
+        };
+        return response;
     }
 };
 exports.AuthService = AuthService;

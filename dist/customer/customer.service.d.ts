@@ -5,6 +5,7 @@ export declare class CustomerService {
     private customerModel;
     constructor(customerModel: typeof Customer);
     create(createCustomerDto: CreateCustomerDto): Promise<Customer>;
+    updateRefreshToken(id: number, hashed_refresh_token: string | null): Promise<[affectedCount: number]>;
     findAll(): Promise<Customer[]>;
     findCustomerByEmail(email: string): Promise<Customer | null>;
     findOne(id: number): Promise<Customer | null>;

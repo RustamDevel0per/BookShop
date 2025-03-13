@@ -5,6 +5,7 @@ import { CreateCustomerDto } from '../customer/dto/create-customer.dto';
 import { Admin } from '../admin/model/admin.model';
 import { AdminService } from '../admin/admin.service';
 import { CreateAdminDto } from '../admin/dto/create-admin.dto';
+import { Response } from 'express';
 export declare class AuthService {
     private readonly CustomerService;
     private readonly jwtService;
@@ -24,12 +25,30 @@ export declare class AuthService {
         access_token: string;
         refresh_token: string;
     }>;
-    signInCustomer(signInDto: SignInDto): Promise<{
+    signInCustomer(signInDto: SignInDto, res: Response): Promise<{
+        message: string;
+        customerId: number;
         access_token: string;
-        refresh_token: string;
     }>;
-    signInAdmin(signInDto: SignInDto): Promise<{
+    signInAdmin(signInDto: SignInDto, res: Response): Promise<{
+        message: string;
+        adminId: number;
         access_token: string;
-        refresh_token: string;
+    }>;
+    signOutCustomer(refreshToken: string, res: Response): Promise<{
+        message: string;
+    }>;
+    signOutAdmin(refreshToken: string, res: Response): Promise<{
+        message: string;
+    }>;
+    refreshTokenAdmin(adminId: number, refreshToken: string, res: Response): Promise<{
+        message: string;
+        adminId: number;
+        access_token: string;
+    }>;
+    refreshTokenCustomer(customerId: number, refreshToken: string, res: Response): Promise<{
+        message: string;
+        customerId: number;
+        access_token: string;
     }>;
 }

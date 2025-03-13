@@ -18,6 +18,8 @@ const auth_service_1 = require("./auth.service");
 const sign_in_dto_1 = require("./dto/sign-in.dto");
 const create_customer_dto_1 = require("../customer/dto/create-customer.dto");
 const create_admin_dto_1 = require("../admin/dto/create-admin.dto");
+const swagger_1 = require("@nestjs/swagger");
+const cookie_getter_decorator_1 = require("../decorators/cookie-getter.decorator");
 let AuthController = class AuthController {
     authService;
     constructor(authService) {
@@ -29,11 +31,23 @@ let AuthController = class AuthController {
     async signUpAdmin(createAdminDto) {
         return this.authService.signUpAdmin(createAdminDto);
     }
-    async signInCustomer(signInDto) {
-        return this.authService.signInCustomer(signInDto);
+    async signInCustomer(signInDto, res) {
+        return this.authService.signInCustomer(signInDto, res);
     }
-    async signInAdmin(signInDto) {
-        return this.authService.signInAdmin(signInDto);
+    async signInAdmin(signInDto, res) {
+        return this.authService.signInAdmin(signInDto, res);
+    }
+    signOutAdmin(refreshToken, res) {
+        return this.authService.signOutAdmin(refreshToken, res);
+    }
+    signOutCustomer(refreshToken, res) {
+        return this.authService.signOutCustomer(refreshToken, res);
+    }
+    refreshAdmin(id, refreshToken, res) {
+        return this.authService.refreshTokenAdmin(id, refreshToken, res);
+    }
+    refreshCusotmer(id, refreshToken, res) {
+        return this.authService.refreshTokenCustomer(id, refreshToken, res);
     }
 };
 exports.AuthController = AuthController;
@@ -52,19 +66,63 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "signUpAdmin", null);
 __decorate([
+    (0, swagger_1.ApiOperation)({ summary: "Tizimga kirish" }),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
     (0, common_1.Post)("signin-customer"),
     __param(0, (0, common_1.Body)()),
+    __param(1, (0, common_1.Res)({ passthrough: true })),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [sign_in_dto_1.SignInDto]),
+    __metadata("design:paramtypes", [sign_in_dto_1.SignInDto, Object]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "signInCustomer", null);
 __decorate([
+    (0, swagger_1.ApiOperation)({ summary: "Tizimga kirish" }),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
     (0, common_1.Post)("signin-admin"),
     __param(0, (0, common_1.Body)()),
+    __param(1, (0, common_1.Res)({ passthrough: true })),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [sign_in_dto_1.SignInDto]),
+    __metadata("design:paramtypes", [sign_in_dto_1.SignInDto, Object]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "signInAdmin", null);
+__decorate([
+    (0, common_1.HttpCode)(200),
+    (0, common_1.Post)("signout-admin"),
+    __param(0, (0, cookie_getter_decorator_1.CookieGetter)("refresh_token")),
+    __param(1, (0, common_1.Res)({ passthrough: true })),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], AuthController.prototype, "signOutAdmin", null);
+__decorate([
+    (0, common_1.HttpCode)(200),
+    (0, common_1.Post)("signout-customer"),
+    __param(0, (0, cookie_getter_decorator_1.CookieGetter)("refresh_token")),
+    __param(1, (0, common_1.Res)({ passthrough: true })),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], AuthController.prototype, "signOutCustomer", null);
+__decorate([
+    (0, common_1.HttpCode)(200),
+    (0, common_1.Post)(":id/refresh-admin"),
+    __param(0, (0, common_1.Param)("id")),
+    __param(1, (0, cookie_getter_decorator_1.CookieGetter)("refresh_token")),
+    __param(2, (0, common_1.Res)({ passthrough: true })),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, String, Object]),
+    __metadata("design:returntype", void 0)
+], AuthController.prototype, "refreshAdmin", null);
+__decorate([
+    (0, common_1.HttpCode)(200),
+    (0, common_1.Post)(":id/refresh-customer"),
+    __param(0, (0, common_1.Param)("id")),
+    __param(1, (0, cookie_getter_decorator_1.CookieGetter)("refresh_token")),
+    __param(2, (0, common_1.Res)({ passthrough: true })),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, String, Object]),
+    __metadata("design:returntype", void 0)
+], AuthController.prototype, "refreshCusotmer", null);
 exports.AuthController = AuthController = __decorate([
     (0, common_1.Controller)("auth"),
     __metadata("design:paramtypes", [auth_service_1.AuthService])
